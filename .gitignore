@@ -1,0 +1,10 @@
+# Ignore everything
+*
+
+# Whitelist the 'build-utils' folder and its contents
+!build-utils/
+!build-utils/**
+!.gitignore
+!Makefile
+!README.md
+!tb.mk.tmp
