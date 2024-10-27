@@ -21,6 +21,6 @@ ifeq ($(suffix $(1)),.cpp)
 .PHONY: build-v-$(basename $(notdir $(1)))
 build-v-$(basename $(notdir $(1))):
 	cd $(2) && \
-	verilator -Wall --cc $(TB_INCLUDE) --trace
+	verilator -Wall --cc $(TB_INCLUDE) --top-module $(TB_TOP_MODULE) --trace --Wno-DECLFILENAME --Wno-PINCONNECTEMPTY
 endif
 endef
