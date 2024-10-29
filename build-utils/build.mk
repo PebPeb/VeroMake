@@ -10,16 +10,16 @@ endef
 
 define gen_build_next
 ifeq ($(suffix $(1)),.v)
-.PHONY: build-iv-$(basename $(notdir $(1)))
-build-iv-$(basename $(notdir $(1))):
+.PHONY: build-iv-$(BUILD_NAME)
+build-iv-$(BUILD_NAME):
 	cd $(2) && \
 	iverilog -o $(basename $(notdir $(1))).out -DVCD_DUMP=1 $(1) $(TB_INCLUDE) && \
 	vvp $(basename $(notdir $(1))).out
 endif
 
 ifeq ($(suffix $(1)),.cpp)
-.PHONY: build-v-$(basename $(notdir $(1)))
-build-v-$(basename $(notdir $(1))):
+.PHONY: build-v-$(BUILD_NAME)
+build-v-$(BUILD_NAME):
 	cd $(2) && \
 	verilator -Wall --cc $(TB_INCLUDE) --top-module $(TB_TOP_MODULE) --trace --Wno-DECLFILENAME --Wno-PINCONNECTEMPTY
 endif
