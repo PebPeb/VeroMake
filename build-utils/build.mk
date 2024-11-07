@@ -8,38 +8,34 @@ $(foreach x, $(TB_SOURCE), \
 endif
 
 ifneq ($(V_COMPILE),)
-$(foreach x, $(V_COMPILE), \
-	$(eval $(call verilator_build_stage, $(x), $$(BUILD_DIR_$(BUILD_NAME)))) \
+# Extract VERILATOR_ROOT and strip whitespace
+
+$(foreach y, $(V_COMPILE), \
+	$(eval $(call verilator_build_stage, $(y), $$(BUILD_DIR_$(BUILD_NAME)))) \
 )
+$(eval $(call verilator_build_stage, , $$(BUILD_DIR_$(BUILD_NAME))))
 
+.PHONY: build-v-$(BUILD_NAME)
+build-v-$(BUILD_NAME):
+	test=$(shell verilator -V | grep "VERILATOR_ROOT" | awk '{print $$3}' | xargs)/include
 
+.PHONY: compile-v-$(BUILD_NAME)
+compile-v-$(BUILD_NAME): $(foreach x, $(V_COMPILE), _V_STAGE_$(BUILD_NAME)_$(x))
 
-
-.PHONY: Test_$(BUILD_NAME)
-Test_$(BUILD_NAME): 
-	@echo $(V_COMPILE)
 endif
 
 endef
-# $(eval $(call verilator_build, $$(BUILD_DIR_$(BUILD_NAME))))
 
-# define verilator_build
-
-# .PHONY: compile-v-$(BUILD_NAME)
-# compile-v-$(BUILD_NAME): $(wildcard V_STAGE_$(BUILD_NAME)*)
-# 	@echo Test
-
-# endef
 
 define verilator_build_stage
 STAGE := $(1)
-ifneq ($(1),)
-.PHONY: V_STAGE_$(BUILD_NAME)_$(STAGE)
-V_STAGE_$(BUILD_NAME)_$(STAGE):
+ifneq ($(STAGE),)
+_V_STAGE_$(BUILD_NAME)_$(STAGE):
 	@echo V_STAGE_$(BUILD_NAME)_$(STAGE)
-	@echo V_SOURCE_$(STAGE)
 	cd $(2) && \
-	verilator -Wall --cc $$(V_SOURCE_$(STAGE)) --top-module $(STAGE) --trace --Wno-DECLFILENAME --Wno-PINCONNECTEMPTY -Wno-UNUSED
+	verilator -Wall --cc $$(V_SOURCE_$(STAGE)) --top-module $(STAGE) --trace --Wno-DECLFILENAME --Wno-PINCONNECTEMPTY -Wno-UNUSED && \
+	cd obj_dir && \
+	make -f V$(STAGE).mk
 endif
 endef
 
@@ -53,11 +49,3 @@ build-iv-$(BUILD_NAME):
 	vvp $(basename $(notdir $(1))).out
 endif
 endef
-
-
-# ifeq ($(suffix $(1)),.cpp)
-# .PHONY: build-v-$(BUILD_NAME)
-# build-v-$(BUILD_NAME):
-# 	cd $(2) && \
-# 	verilator -Wall --cc $(TB_INCLUDE) --top-module $(TB_TOP_MODULE) --trace --Wno-DECLFILENAME --Wno-PINCONNECTEMPTY -Wno-UNUSED
-# endif
