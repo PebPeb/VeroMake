@@ -40,7 +40,6 @@ STAGE := $(1)
 endef
 
 define verilator_build_stage
-.PHONY: V_STAGE_$(BUILD_NAME)_$(STAGE)
 _V_STAGE_$(BUILD_NAME)_$(STAGE):
 	@echo V_STAGE_$(BUILD_NAME)_$(STAGE)
 	cd $(2) && \
