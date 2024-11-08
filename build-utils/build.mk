@@ -1,8 +1,6 @@
 define gen_build
 
-include $(1)/tb.mk
 BUILD_DIR_$(BUILD_NAME) := $(1)
-$(info $(1)) 
 
 ifneq ($(TB_SOURCE),)
 $(foreach x, $(TB_SOURCE), \
@@ -14,18 +12,22 @@ ifneq ($(V_COMPILE),)
 # Extract VERILATOR_ROOT and strip whitespace
 
 $(foreach y, $(V_COMPILE), \
+	$(eval $(call next_stage, $(y))) \
 	$(eval $(call verilator_build_stage, $(y), $$(BUILD_DIR_$(BUILD_NAME)))) \
 )
 
 
 .PHONY: build-v-$(BUILD_NAME)
 build-v-$(BUILD_NAME):
-	@echo 
 	@echo $$(BUILD_DIR_$(BUILD_NAME))
 	cd $$(BUILD_DIR_$(BUILD_NAME)) && \
-	g++ -I obj_dir -I$(VERILATOR_DIR)/include ./$(V_TB) obj_dir/*__ALL.cpp -o $(BUILD_NAME).o
-	
-
+	g++ -I obj_dir -I$(VERILATOR_DIR)/include \
+	./$(V_TB) \
+	obj_dir/*__ALL.cpp \
+	$(VERILATOR_DIR)/include/verilated.cpp \
+	$(VERILATOR_DIR)/include/verilated_vcd_c.cpp \
+	-o $(BUILD_NAME).o 
+		
 .PHONY: compile-v-$(BUILD_NAME)
 compile-v-$(BUILD_NAME): $(foreach x, $(V_COMPILE), _V_STAGE_$(BUILD_NAME)_$(x))
 
@@ -33,17 +35,18 @@ endif
 
 endef
 
+define next_stage
+STAGE := $(1)
+endef
 
 define verilator_build_stage
-STAGE := $(1)
-ifneq ($(STAGE),)
+.PHONY: V_STAGE_$(BUILD_NAME)_$(STAGE)
 _V_STAGE_$(BUILD_NAME)_$(STAGE):
 	@echo V_STAGE_$(BUILD_NAME)_$(STAGE)
 	cd $(2) && \
 	verilator -Wall --cc $$(V_SOURCE_$(STAGE)) --top-module $(STAGE) --trace --Wno-DECLFILENAME --Wno-PINCONNECTEMPTY -Wno-UNUSED && \
 	cd obj_dir && \
 	make -f V$(STAGE).mk
-endif
 endef
 
 
