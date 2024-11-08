@@ -1,5 +1,8 @@
 define gen_build
+
+include $(1)/tb.mk
 BUILD_DIR_$(BUILD_NAME) := $(1)
+$(info $(1)) 
 
 ifneq ($(TB_SOURCE),)
 $(foreach x, $(TB_SOURCE), \
@@ -13,11 +16,15 @@ ifneq ($(V_COMPILE),)
 $(foreach y, $(V_COMPILE), \
 	$(eval $(call verilator_build_stage, $(y), $$(BUILD_DIR_$(BUILD_NAME)))) \
 )
-$(eval $(call verilator_build_stage, , $$(BUILD_DIR_$(BUILD_NAME))))
+
 
 .PHONY: build-v-$(BUILD_NAME)
 build-v-$(BUILD_NAME):
-	test=$(shell verilator -V | grep "VERILATOR_ROOT" | awk '{print $$3}' | xargs)/include
+	@echo 
+	@echo $$(BUILD_DIR_$(BUILD_NAME))
+	cd $$(BUILD_DIR_$(BUILD_NAME)) && \
+	g++ -I obj_dir -I$(VERILATOR_DIR)/include ./$(V_TB) obj_dir/*__ALL.cpp -o $(BUILD_NAME).o
+	
 
 .PHONY: compile-v-$(BUILD_NAME)
 compile-v-$(BUILD_NAME): $(foreach x, $(V_COMPILE), _V_STAGE_$(BUILD_NAME)_$(x))

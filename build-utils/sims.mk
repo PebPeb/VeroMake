@@ -11,16 +11,16 @@ VALID_SIMS_FOLDERS :=
 $(foreach folder,$(SIMS_FOLDERS),$(if $(wildcard $(folder)/tb.mk),$(eval VALID_SIMS_FOLDERS += $(folder))))
 
 # ------------------------------------------------------------ #
-# Source all tb.mk files
-define sourcing_mk 
-include $(1)
-endef
+
+VERILATOR_DIR := $(shell verilator -V | grep "VERILATOR_ROOT" | awk '{print $$3}' | xargs)
+
 
 # ------------------------------------------------------------ #
 
+
+
 # Make Process
 $(foreach x, $(VALID_SIMS_FOLDERS), \
-	$(eval $(call sourcing_mk, $(x)/tb.mk)) \
 	$(eval $(call gen_build, $(x))) \
 	$(eval $(call gtkwave_sim_target, $(x))) \
 )
