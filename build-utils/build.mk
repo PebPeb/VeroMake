@@ -9,16 +9,18 @@ $(foreach x, $(TB_SOURCE), \
 endif
 
 ifneq ($(V_COMPILE),)
-# Extract VERILATOR_ROOT and strip whitespace
 
 $(foreach y, $(V_COMPILE), \
 	$(eval $(call next_stage, $(y))) \
 	$(eval $(call verilator_build_stage, $(y), $$(BUILD_DIR_$(BUILD_NAME)))) \
 )
 
+		
+.PHONY: compile-v-$(BUILD_NAME)
+compile-v-$(BUILD_NAME): $(foreach x, $(V_COMPILE), _V_STAGE_$(BUILD_NAME)_$(x)) _build-v-$(BUILD_NAME)
 
-.PHONY: build-v-$(BUILD_NAME)
-build-v-$(BUILD_NAME):
+# .PHONY: build-v-$(BUILD_NAME)
+_build-v-$(BUILD_NAME):
 	@echo $$(BUILD_DIR_$(BUILD_NAME))
 	cd $$(BUILD_DIR_$(BUILD_NAME)) && \
 	g++ -I obj_dir -I$(VERILATOR_DIR)/include \
@@ -27,18 +29,19 @@ build-v-$(BUILD_NAME):
 	$(VERILATOR_DIR)/include/verilated.cpp \
 	$(VERILATOR_DIR)/include/verilated_vcd_c.cpp \
 	-o $(BUILD_NAME).o 
-		
-.PHONY: compile-v-$(BUILD_NAME)
-compile-v-$(BUILD_NAME): $(foreach x, $(V_COMPILE), _V_STAGE_$(BUILD_NAME)_$(x))
 
 endif
-
 endef
 
+
+# Issues With $(1) be aassigned after execution
+# 'next_stage' is called before 'verilator_build_stage'
 define next_stage
 STAGE := $(1)
 endef
 
+# Builds verilator
+# Then compiles the verilator output
 define verilator_build_stage
 _V_STAGE_$(BUILD_NAME)_$(STAGE):
 	@echo V_STAGE_$(BUILD_NAME)_$(STAGE)
