@@ -33,5 +33,6 @@ clean:
 	$(foreach x,$(VALID_SIMS_FOLDERS), \
 		rm -f $(x)/*.vcd && \
 		rm -f $(x)/*.out && \
+		rm -f $(x)/*.o && \
 		rm -fr $(x)/obj_dir \
 	)
