@@ -46,7 +46,7 @@ define verilator_build_stage
 _V_STAGE_$(BUILD_NAME)_$(STAGE):
 	@echo V_STAGE_$(BUILD_NAME)_$(STAGE)
 	cd $(2) && \
-	verilator -Wall --cc $$(V_SOURCE_$(STAGE)) --top-module $(STAGE) --trace --Wno-DECLFILENAME --Wno-PINCONNECTEMPTY -Wno-UNUSED && \
+	verilator -Wall --public --cc $$(V_SOURCE_$(STAGE)) --top-module $(STAGE) --trace --Wno-DECLFILENAME --Wno-PINCONNECTEMPTY -Wno-UNUSED && \
 	cd obj_dir && \
 	make -f V$(STAGE).mk
 endef
